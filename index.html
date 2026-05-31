@@ -6,275 +6,9 @@
 <title>Motor Condition Monitor</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #0d0f12;
-    --bg-card: #13161b;
-    --bg-card2: #1a1e25;
-    --border: rgba(255,255,255,0.07);
-    --border-hi: rgba(255,255,255,0.13);
-    --text-primary: #e8ecf0;
-    --text-secondary: #7a8494;
-    --text-dim: #4a5260;
-    --accent: #00c896;
-    --accent-dim: rgba(0,200,150,0.12);
-    --warn: #f0a500;
-    --warn-dim: rgba(240,165,0,0.12);
-    --danger: #e05050;
-    --danger-dim: rgba(224,80,80,0.12);
-    --blue: #4d9fff;
-    --blue-dim: rgba(77,159,255,0.12);
-    --purple: #a78bfa;
-    --purple-dim: rgba(167,139,250,0.12);
-    --radius: 14px;
-    --radius-sm: 8px;
-  }
+<link rel="stylesheet" href="style.css">
 
-  body {
-    font-family: 'Syne', sans-serif;
-    background: var(--bg);
-    color: var(--text-primary);
-    min-height: 100vh;
-  }
-
-  /* ── Header ── */
-  header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 36px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-card);
-  }
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-    font-size: 13px; font-weight: 600;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--text-secondary);
-  }
-  .logo-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 8px var(--accent);
-  }
-  .header-right {
-    display: flex; align-items: center; gap: 20px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px; color: var(--text-secondary);
-  }
-  #clock { color: var(--text-primary); font-size: 13px; }
-  .badge-online {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 11px; color: var(--accent);
-    background: var(--accent-dim);
-    padding: 4px 12px; border-radius: 20px;
-    border: 1px solid rgba(0,200,150,0.2);
-  }
-  .badge-online::before {
-    content: ''; width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-
-  /* ── Main ── */
-  main { padding: 28px 36px; display: flex; flex-direction: column; gap: 28px; }
-
-  /* ── Section header ── */
-  .section-header {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
-  }
-  .section-title {
-    font-size: 11px; text-transform: uppercase;
-    letter-spacing: 0.12em; color: var(--text-secondary); font-weight: 600;
-    white-space: nowrap;
-  }
-  .section-line { flex: 1; height: 1px; background: var(--border); }
-  .section-tag {
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    color: var(--text-dim); background: var(--bg-card2);
-    padding: 3px 8px; border-radius: 4px;
-    border: 1px solid var(--border); white-space: nowrap;
-  }
-
-  /* ── TOP PANEL ── */
-  .top-panel {
-    display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 20px;
-    align-items: stretch;
-  }
-
-  /* ── Motor card ── */
-  .motor-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 28px 20px; gap: 14px;
-    position: relative; overflow: hidden;
-  }
-  .motor-card::before {
-    content: ''; position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 50% 65%, rgba(0,200,150,0.06) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .motor-label {
-    font-size: 10px; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--text-dim);
-  }
-  .motor-name {
-    font-size: 17px; font-weight: 700; letter-spacing: 0.02em;
-  }
-  .motor-id {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px; color: var(--text-dim);
-  }
-  .status-badge {
-    display: flex; align-items: center; gap: 8px;
-    padding: 7px 20px; border-radius: 30px;
-    font-size: 12px; font-weight: 600;
-    letter-spacing: 0.08em; text-transform: uppercase;
-    transition: all 0.4s;
-  }
-  .status-badge.running {
-    background: var(--accent-dim);
-    border: 1px solid rgba(0,200,150,0.3); color: var(--accent);
-  }
-  .status-badge.stopped {
-    background: var(--danger-dim);
-    border: 1px solid rgba(224,80,80,0.3); color: var(--danger);
-  }
-  .status-dot { width: 7px; height: 7px; border-radius: 50%; transition: background 0.4s; }
-  .status-badge.running .status-dot {
-    background: var(--accent); box-shadow: 0 0 6px var(--accent);
-    animation: pulse 1.5s infinite;
-  }
-  .status-badge.stopped .status-dot { background: var(--danger); }
-
-  .rotor { transform-origin: 100px 70px; }
-  .rotor.spinning { animation: spin 1.1s linear infinite; }
-
-  /* ── Metrics panel (2x2 grid) ── */
-  .metrics-panel {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 14px;
-  }
-  .metric-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 22px;
-    display: flex; flex-direction: column;
-    justify-content: space-between; gap: 10px;
-    transition: border-color 0.3s;
-    position: relative; overflow: hidden;
-  }
-  .metric-card::after {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 2px;
-    background: transparent; transition: background 0.3s;
-    border-radius: 2px 2px 0 0;
-  }
-  .metric-card.warn  { border-color: rgba(240,165,0,0.35); }
-  .metric-card.warn::after  { background: var(--warn); }
-  .metric-card.danger { border-color: rgba(224,80,80,0.35); }
-  .metric-card.danger::after { background: var(--danger); }
-  .metric-card.ok::after { background: var(--accent); }
-
-  .metric-label {
-    font-size: 10px; text-transform: uppercase;
-    letter-spacing: 0.11em; color: var(--text-secondary);
-    display: flex; align-items: center; gap: 7px;
-  }
-  .metric-icon {
-    width: 16px; height: 16px; opacity: 0.55; flex-shrink: 0;
-  }
-  .metric-value {
-    font-family: 'DM Mono', monospace;
-    font-size: 36px; font-weight: 400; line-height: 1;
-    color: var(--text-primary); transition: color 0.3s;
-  }
-  .metric-value.warn   { color: var(--warn); }
-  .metric-value.danger { color: var(--danger); }
-  .metric-unit {
-    font-size: 14px; color: var(--text-secondary); margin-left: 3px;
-  }
-  .metric-bar-wrap {
-    height: 3px; background: var(--border);
-    border-radius: 3px; overflow: hidden;
-  }
-  .metric-bar {
-    height: 100%; border-radius: 3px;
-    transition: width 0.7s ease, background 0.3s;
-  }
-  .metric-sub {
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    color: var(--text-dim); display: flex; justify-content: space-between;
-  }
-
-  /* Status metric card special */
-  .metric-card.status-card {
-    justify-content: center; align-items: flex-start; gap: 12px;
-  }
-  .status-large {
-    font-family: 'DM Mono', monospace;
-    font-size: 28px; font-weight: 400; line-height: 1;
-    transition: color 0.4s;
-  }
-  .status-large.running { color: var(--accent); }
-  .status-large.stopped { color: var(--danger); }
-  .uptime-txt {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px; color: var(--text-dim);
-  }
-
-  /* ── Historical section ── */
-  .hist-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .hist-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 22px;
-  }
-  .hist-card-header {
-    display: flex; align-items: center;
-    justify-content: space-between; margin-bottom: 14px;
-  }
-  .hist-card-title { font-size: 13px; font-weight: 600; }
-  .legend { display: flex; gap: 14px; }
-  .legend-item {
-    display: flex; align-items: center; gap: 5px;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px; color: var(--text-secondary);
-  }
-  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
-  .hist-wrap { position: relative; height: 160px; }
-
-  /* ── Last updated ── */
-  .last-updated {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px; color: var(--text-dim);
-    text-align: right; padding-bottom: 8px;
-  }
-
-  @media (max-width: 860px) {
-    .top-panel { grid-template-columns: 1fr; }
-    .hist-grid  { grid-template-columns: 1fr; }
-    main { padding: 16px; }
-    header { padding: 14px 16px; }
-  }
-</style>
 </head>
 <body>
 
@@ -284,7 +18,8 @@
     IoT Machine Monitoring System
   </div>
   <div class="header-right">
-    <span>Unit: <span style="color:var(--text-primary)">MCM-007</span></span>
+    <!--<span>Unit: <span style="color:var(--text-primary)">MCM-007</span></span>-->
+    <span id="date">Day, --/--/--</span>
     <span id="clock">--:--:--</span>
     <div class="badge-online">Online</div>
   </div>
@@ -295,9 +30,37 @@
   <!-- ══ REAL-TIME SECTION ══ -->
   <div>
     <div class="section-header">
-      <div class="section-title">Real-time Monitor</div>
+      <div class="section-title">Real-time Data</div>
       <div class="section-line"></div>
-      <div class="section-tag" id="lastUpdated">Waiting for data…</div>
+      <!--<div class="section-tag" id="lastUpdated">Waiting for data…</div>-->
+      <div class="info-wrapper">
+
+        <!--<div class="info-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24"
+              fill="currentColor">
+            <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-6h2v6zm-1-8.5a1.25 1.25 0 110-2.5 1.25 1.25 0 010 2.5z"/>
+          </svg>-->
+      <!--info icon for displaying threshold color indicator general info-->
+      <!--<div class="info-icon">𝒊
+        <div class="info-tooltip">
+          <strong>Threshold Indicators</strong><br><br>
+
+          <span class="dot green"></span>
+          Normal / Safe Range<br>
+
+          <span class="dot orange"></span>
+          Warning Range<br>
+
+          <span class="dot red"></span>
+          Critical / Abnormal Range
+        </div>
+      </div>-->
+
+      <div class="section-tag" id="lastUpdated">
+        Waiting for data...
+      </div>
+
+    </div>
     </div>
 
     <div class="top-panel">
@@ -356,13 +119,13 @@
           </g>
           <!-- Sensor dot -->
           <circle cx="68" cy="98" r="4.5" fill="#1a2230" stroke="#00c896" stroke-width="1.5"/>
-          <text x="68" y="109" text-anchor="middle" font-size="7" fill="#00c896" font-family="DM Mono,monospace">SENS</text>
+          <text x="68" y="109" text-anchor="middle" font-size="7" fill="#00c896" font-family="DM Mono,monospace">SENSOR</text>
         </svg>
 
         <div class="motor-name">Induction Motor</div>
         <div class="status-badge running" id="statusBadge">
           <div class="status-dot"></div>
-          <span id="statusText">Running</span>
+          <span id="statusText">--</span>
         </div>
         <div class="motor-id" id="uptimeTxt">Uptime: --:--:--</div>
       </div>
@@ -373,17 +136,38 @@
         <!-- Temperature -->
         <div class="metric-card ok" id="cardTemp">
           <div class="metric-label">
-            <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-              <path d="M12 2v10M9 18a3 3 0 106 0 3 3 0 00-6 0"/><line x1="12" y1="12" x2="12" y2="15"/>
+            <svg class="metric-icon" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round">
+              <path d="M12 2v10M9 18a3 3 0 106 0 3 3 0 00-6 0"/>
+              <line x1="12" y1="12" x2="12" y2="15"/>
             </svg>
+
             Temperature
+
+            <div class="metric-info">
+              𝒊
+
+              <div class="info-tooltip">
+                <div class="tooltip-title">Temperature Threshold</div>
+
+                <span class="dot green"></span>
+                Normal: &lt; 45°C<br>
+
+                <span class="dot orange"></span>
+                Warning: 45–74°C<br>
+
+                <span class="dot red"></span>
+                Critical: ≥ 75°C
+              </div>
+            </div>
           </div>
           <div>
             <span class="metric-value" id="tempVal">--</span>
             <span class="metric-unit">°C</span>
           </div>
           <div class="metric-bar-wrap">
-            <div class="metric-bar" id="tempBar" style="width:0%;background:var(--warn)"></div>
+            <div class="metric-bar" id="tempBar" style="width:0%;background:var(--peach)"></div>
           </div>
           <div class="metric-sub"><span>20°C</span><span id="tempSub">—</span><span>100°C</span></div>
         </div>
@@ -395,6 +179,23 @@
               <path d="M12 2C12 2 5 10 5 15a7 7 0 0014 0C19 10 12 2 12 2z"/>
             </svg>
             Humidity
+
+            <div class="metric-info">
+              𝒊
+
+              <div class="info-tooltip">
+                <div class="tooltip-title">Humidity Threshold</div>
+
+                <span class="dot green"></span>
+                Normal: &lt; 70%<br>
+
+                <span class="dot orange"></span>
+                Warning: 70–84%<br>
+
+                <span class="dot red"></span>
+                Critical: ≥ 85%
+              </div>
+            </div>
           </div>
           <div>
             <span class="metric-value" id="humiVal">--</span>
@@ -413,6 +214,23 @@
               <path d="M2 12h2l2-6 3 12 3-9 2 6 2-3h4"/>
             </svg>
             Vibration
+
+            <div class="metric-info">
+              𝒊
+
+              <div class="info-tooltip">
+              <div class="tooltip-title">Vibration Threshold</div>
+
+                <span class="dot green"></span>
+                Normal: &lt; 10 mm/s<br>
+
+                <span class="dot orange"></span>
+                Warning: 10–14.9 mm/s<br>
+
+                <span class="dot red"></span>
+                Critical: ≥ 15 mm/s
+              </div>
+            </div>
           </div>
           <div>
             <span class="metric-value" id="vibVal">--</span>
@@ -421,7 +239,7 @@
           <div class="metric-bar-wrap">
             <div class="metric-bar" id="vibBar" style="width:0%;background:var(--purple)"></div>
           </div>
-          <div class="metric-sub"><span>0</span><span id="vibSub">—</span><span>30</span></div>
+          <div class="metric-sub"><span>0</span><span id="vibSub">—</span><span>20</span></div>
         </div>
 
         <!-- Motor Status -->
@@ -430,9 +248,9 @@
             <svg class="metric-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
               <circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4V8z"/>
             </svg>
-            Motor Status
+            Motor Condition Status
           </div>
-          <div class="status-large running" id="statusLarge">RUN</div>
+          <div class="status-large running" id="statusLarge">--</div>
           <div class="uptime-txt" id="uptimeTxt2">Uptime: --:--:--</div>
           <div class="metric-sub" style="margin-top:4px">
             <span id="cyclesTxt">Cycles: 0</span>
@@ -449,7 +267,7 @@
     <div class="section-header">
       <div class="section-title">Historical Data</div>
       <div class="section-line"></div>
-      <div class="section-tag">Last 60 readings · 1 min interval</div>
+      <div class="section-tag">Last readings · 1 min interval</div>
     </div>
 
     <div class="hist-grid">
@@ -498,464 +316,8 @@
 
 </main>
 
-<script>
-const SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/1EXY9uL0_pyWCFyNQxFrFWjkZ5V9qQGuLOq1vusJTKZA/export?format=csv&gid=0";
+<script src="script.js" defer></script>
 
-// ======================
-// DATA STORAGE
-// ======================
-let tempData = [];
-let humiData = [];
-let vibData = [];
-let labels = [];
 
-// ======================
-// CHART OBJECTS
-// ======================
-let tempChart, humiChart, vibChart;
-
-// ======================
-// FETCH GOOGLE SHEET
-// ======================
-async function fetchSheetData() {
-  try {
-    const res = await fetch(SHEET_URL);
-    const text = await res.text();
-
-    const rows = text.trim().split("\n").map(r => r.split(","));
-    rows.shift(); // remove header
-
-    // reset arrays
-    tempData = [];
-    humiData = [];
-    vibData = [];
-    labels = [];
-
-    rows.forEach((row, i) => {
-      tempData.push(parseFloat(row[1]));
-      humiData.push(parseFloat(row[2]));
-      vibData.push(parseFloat(row[6]));
-      labels.push(i + 1);
-    });
-
-    // latest row
-    const latest = rows[rows.length - 1];
-
-    updateUI({
-      temp: parseFloat(latest[1]),
-      humi: parseFloat(latest[2]),
-      vib: parseFloat(latest[6]),
-      status: latest[7],
-      uptime: latest[5]
-    });
-
-    updateCharts();
-  } catch (err) {
-    console.error("Sheet fetch error:", err);
-  }
-}
-
-// ======================
-// UPDATE UI
-// ======================
-function updateUI(d) {
-  // Temperature
-  document.getElementById("tempVal").innerText = d.temp;
-  document.getElementById("tempBar").style.width = Math.min(d.temp, 100) + "%";
-
-  // Humidity
-  document.getElementById("humiVal").innerText = d.humi;
-  document.getElementById("humiBar").style.width = d.humi + "%";
-
-  // Vibration
-  document.getElementById("vibVal").innerText = d.vib;
-  document.getElementById("vibBar").style.width = Math.min(d.vib * 10, 100) + "%";
-
-  // ======================
-  // STATUS LOGIC
-  // ======================
-  const status = (d.status || "").toLowerCase();
-
-  const statusBadge = document.getElementById("statusBadge");
-  const statusLarge = document.getElementById("statusLarge");
-  const rotor = document.getElementById("rotorEl");
-
-  if (status === "normal") {
-    statusBadge.className = "status-badge running";
-    statusLarge.className = "status-large running";
-
-    document.getElementById("statusText").innerText = "Normal";
-    statusLarge.innerText = "NORMAL";
-
-    rotor.classList.add("spinning");
-  } 
-  else if (status === "abnormal") {
-    statusBadge.className = "status-badge stopped";
-    statusLarge.className = "status-large stopped";
-
-    document.getElementById("statusText").innerText = "Abnormal";
-    statusLarge.innerText = "ABNORMAL";
-
-    rotor.classList.remove("spinning");
-  } 
-  else {
-    statusBadge.className = "status-badge stopped";
-    statusLarge.className = "status-large stopped";
-
-    document.getElementById("statusText").innerText = "Unknown";
-    statusLarge.innerText = "UNKNOWN";
-
-    rotor.classList.remove("spinning");
-  }
-
-  // Uptime
-  document.getElementById("uptimeTxt").innerText = "Uptime: " + d.uptime;
-  document.getElementById("uptimeTxt2").innerText = "Uptime: " + d.uptime;
-
-  // Timestamp
-  document.getElementById("lastUpdated").innerText =
-    "Last updated: " + new Date().toLocaleTimeString();
-}
-
-// ======================
-// INIT CHARTS
-// ======================
-function initCharts() {
-  tempChart = new Chart(document.getElementById("tempHistChart"), {
-    type: "line",
-    data: {
-      labels: [],
-      datasets: [{
-        label: "Temperature",
-        data: [],
-        borderColor: "#f0a500",
-        tension: 0.3
-      }]
-    }
-  });
-
-  humiChart = new Chart(document.getElementById("humiHistChart"), {
-    type: "line",
-    data: {
-      labels: [],
-      datasets: [{
-        label: "Humidity",
-        data: [],
-        borderColor: "#4d9fff",
-        tension: 0.3
-      }]
-    }
-  });
-
-  vibChart = new Chart(document.getElementById("vibHistChart"), {
-    type: "line",
-    data: {
-      labels: [],
-      datasets: [{
-        label: "Vibration",
-        data: [],
-        borderColor: "#a78bfa",
-        tension: 0.3
-      }]
-    }
-  });
-}
-
-// ======================
-// UPDATE CHART DATA
-// ======================
-function updateCharts() {
-  tempChart.data.labels = labels;
-  tempChart.data.datasets[0].data = tempData;
-  tempChart.update();
-
-  humiChart.data.labels = labels;
-  humiChart.data.datasets[0].data = humiData;
-  humiChart.update();
-
-  vibChart.data.labels = labels;
-  vibChart.data.datasets[0].data = vibData;
-  vibChart.update();
-}
-
-// ======================
-// START APP
-// ======================
-initCharts();
-fetchSheetData();
-setInterval(fetchSheetData, 2000);
-</script>
-
-<!--<script>
-/* ═══════════════════════════════════════════════
-   GOOGLE SHEETS CSV CONFIG
-   ═══════════════════════════════════════════════ */
-const SHEET_ID  = '1EXY9uL0_pyWCFyNQxFrFWjkZ5V9qQGuLOq1vusJTKZA';
-const GID       = '0';            // tab gid (0 = first tab / Sheet1)
-const POLL_MS   = 60000;          // poll every 60 seconds
-
-// Column indices (0-based): Timestamp, Temperature, Humidity, Vibration, Status
-const COL = { ts: 0, temp: 1, humi: 2, vib: 3, status: 4 };
-
-const CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
-const USE_SHEET = true;
-/* ═══════════════════════════════════════════════ */
-
-// ── Clock ──
-function updateClock() {
-  document.getElementById('clock').textContent = new Date().toTimeString().slice(0,8);
-}
-setInterval(updateClock, 1000); updateClock();
-
-// ── State (no dummy values) ──
-const state = {
-  running: null,       // null = unknown until first fetch
-  uptimeSeconds: 0,
-  cycles: 0,
-  alerts: 0,
-  lastAlertVib: false,
-  lastWarnTemp: false,
-  hasData: false
-};
-
-const N = 60; // max history rows shown
-
-// ── Uptime counter (only runs after first real data) ──
-setInterval(() => {
-  if (!state.hasData || state.running !== true) return;
-  state.uptimeSeconds++;
-  const h = String(Math.floor(state.uptimeSeconds/3600)).padStart(2,'0');
-  const m = String(Math.floor((state.uptimeSeconds%3600)/60)).padStart(2,'0');
-  const s = String(state.uptimeSeconds%60).padStart(2,'0');
-  const str = `Uptime: ${h}:${m}:${s}`;
-  document.getElementById('uptimeTxt').textContent = str;
-  document.getElementById('uptimeTxt2').textContent = str;
-}, 1000);
-
-// ── Chart factory (starts empty) ──
-function makeLineChart(canvasId, color, fillColor, labelSuffix='') {
-  return new Chart(document.getElementById(canvasId).getContext('2d'), {
-    type: 'line',
-    data: { labels: [], datasets: [{ data: [], borderColor: color, borderWidth: 1.8, pointRadius: 0, tension: 0.35, fill: { target: 'origin', above: fillColor } }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      animation: { duration: 400 },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1a1e25', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-          titleColor: '#7a8494', bodyColor: '#e8ecf0',
-          titleFont: { family: 'DM Mono', size: 10 }, bodyFont: { family: 'DM Mono', size: 11 },
-          callbacks: { label: ctx => ` ${ctx.parsed.y.toFixed(2)}${labelSuffix}` }
-        }
-      },
-      scales: {
-        x: { grid:{display:false}, ticks:{color:'#4a5260',font:{family:'DM Mono',size:10},maxTicksLimit:5,autoSkip:true}, border:{color:'transparent'} },
-        y: { grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#4a5260',font:{family:'DM Mono',size:10},maxTicksLimit:4}, border:{color:'transparent'} }
-      }
-    }
-  });
-}
-
-const tempHistChart = makeLineChart('tempHistChart', '#f0a500', 'rgba(240,165,0,0.07)',   ' °C');
-const humiHistChart = makeLineChart('humiHistChart', '#4d9fff', 'rgba(77,159,255,0.07)',  ' %');
-const vibHistChart  = makeLineChart('vibHistChart',  '#a78bfa', 'rgba(167,139,250,0.07)', ' mm/s');
-
-const statusHistChart = new Chart(document.getElementById('statusHistChart').getContext('2d'), {
-  type: 'bar',
-  data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 2, borderSkipped: false }] },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    animation: { duration: 400 },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#1a1e25', borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1,
-        titleColor: '#7a8494', bodyColor: '#e8ecf0',
-        titleFont: { family: 'DM Mono', size: 10 }, bodyFont: { family: 'DM Mono', size: 11 },
-        callbacks: { label: ctx => ` ${ctx.parsed.y === 1 ? 'Running' : 'Stopped'}` }
-      }
-    },
-    scales: {
-      x: { grid:{display:false}, ticks:{color:'#4a5260',font:{family:'DM Mono',size:10},maxTicksLimit:5}, border:{color:'transparent'} },
-      y: { min:0, max:1.4, grid:{display:false}, ticks:{display:false}, border:{color:'transparent'} }
-    },
-    categoryPercentage: 0.95, barPercentage: 0.95
-  }
-});
-
-// ── UI reset to -- (no data state) ──
-function resetUI() {
-  ['tempVal','humiVal','vibVal'].forEach(id => {
-    const el = document.getElementById(id);
-    el.textContent = '--'; el.className = 'metric-value';
-  });
-  ['tempBar','humiBar','vibBar'].forEach(id => document.getElementById(id).style.width = '0%');
-  ['tempSub','humiSub','vibSub'].forEach(id => document.getElementById(id).textContent = '—');
-  document.getElementById('statusLarge').textContent = '--';
-  document.getElementById('statusLarge').className = 'status-large';
-  document.getElementById('cardStatus').className = 'metric-card status-card';
-  document.getElementById('statusBadge').className = 'status-badge stopped';
-  document.getElementById('statusText').textContent = '--';
-  document.getElementById('rotorEl').className = 'rotor';
-  document.getElementById('uptimeTxt').textContent = 'Uptime: --:--:--';
-  document.getElementById('uptimeTxt2').textContent = 'Uptime: --:--:--';
-  document.getElementById('cyclesTxt').textContent = 'Cycles: --';
-  document.getElementById('alertsTxt').textContent = 'Alerts: --';
-}
-
-// ── UI helpers ──
-function setLevel(cardId, valEl, level) {
-  document.getElementById(cardId).className = 'metric-card ' + (level || 'ok');
-  valEl.className = 'metric-value ' + (level || '');
-}
-
-function updateMetricUI(data) {
-  const { temp, humi, vib, running } = data;
-
-  // Temperature
-  const tempEl  = document.getElementById('tempVal');
-  const tempLvl = temp > 80 ? 'danger' : temp > 65 ? 'warn' : '';
-  tempEl.textContent = temp.toFixed(1);
-  setLevel('cardTemp', tempEl, tempLvl);
-  document.getElementById('tempBar').style.width = Math.min(((temp-20)/80)*100, 100) + '%';
-  document.getElementById('tempSub').textContent = temp.toFixed(1) + '°C';
-
-  // Humidity
-  const humiEl  = document.getElementById('humiVal');
-  const humiLvl = humi > 85 ? 'warn' : '';
-  humiEl.textContent = humi.toFixed(1);
-  setLevel('cardHumi', humiEl, humiLvl);
-  document.getElementById('humiBar').style.width = Math.min(humi, 100) + '%';
-  document.getElementById('humiSub').textContent = humi.toFixed(1) + '%';
-
-  // Vibration
-  const vibEl  = document.getElementById('vibVal');
-  const vibLvl = vib > 7.1 ? 'danger' : vib > 4.5 ? 'warn' : '';
-  vibEl.textContent = vib.toFixed(2);
-  setLevel('cardVib', vibEl, vibLvl);
-  document.getElementById('vibBar').style.width = Math.min((vib/10)*100, 100) + '%';
-  document.getElementById('vibSub').textContent = vib.toFixed(2) + ' mm/s';
-
-  // Motor status
-  const statusLarge = document.getElementById('statusLarge');
-  statusLarge.className = 'status-large ' + (running ? 'running' : 'stopped');
-  statusLarge.textContent = running ? 'RUN' : 'STOP';
-  document.getElementById('cardStatus').className = 'metric-card status-card ' + (running ? 'ok' : 'danger');
-  document.getElementById('statusBadge').className = 'status-badge ' + (running ? 'running' : 'stopped');
-  document.getElementById('statusText').textContent = running ? 'Running' : 'Stopped';
-  document.getElementById('rotorEl').className = 'rotor ' + (running ? 'spinning' : '');
-
-  // Cycle / alert counters
-  document.getElementById('cyclesTxt').textContent = 'Cycles: ' + state.cycles;
-  document.getElementById('alertsTxt').textContent = 'Alerts: ' + state.alerts;
-
-  // Threshold alerts
-  if (vib > 7.1 && !state.lastAlertVib) { state.alerts++; state.lastAlertVib = true; }
-  else if (vib <= 7.1) state.lastAlertVib = false;
-  if (temp > 80 && !state.lastWarnTemp) { state.alerts++; state.lastWarnTemp = true; }
-  else if (temp <= 80) state.lastWarnTemp = false;
-}
-
-// ── CSV parser ──
-function parseCSV(text) {
-  return text.trim().split('\n').map(line => {
-    const cols = []; let cur = '', inQ = false;
-    for (const ch of line) {
-      if (ch === '"') { inQ = !inQ; }
-      else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-      else { cur += ch; }
-    }
-    cols.push(cur.trim());
-    return cols;
-  });
-}
-
-function parseStatus(val) {
-  const v = String(val).trim().toLowerCase();
-  return v === '1' || v === 'run' || v === 'running' || v === 'true';
-}
-
-// ── Fetch from Google Sheets CSV ──
-async function fetchSheet() {
-  try {
-    const res = await fetch(CSV_URL);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const rows = parseCSV(await res.text());
-    if (rows.length < 2) return null;
-
-    // Skip header; filter out blank rows
-    const dataRows = rows.slice(1).filter(r => r.length >= 4 && r[COL.ts] !== '');
-    if (dataRows.length === 0) return null;
-
-    const last = dataRows[dataRows.length - 1];
-    const current = {
-      temp:    parseFloat(last[COL.temp]),
-      humi:    parseFloat(last[COL.humi]),
-      vib:     parseFloat(last[COL.vib]),
-      running: parseStatus(last[COL.status])
-    };
-
-    // Validate — if any numeric field is NaN, treat as no data
-    if (isNaN(current.temp) || isNaN(current.humi) || isNaN(current.vib)) return null;
-
-    return { current, hist: dataRows };
-  } catch(e) {
-    console.warn('CSV fetch failed:', e);
-    return null;
-  }
-}
-
-// ── Main loop ──
-async function mainLoop() {
-  const result = await fetchSheet();
-
-  if (!result) {
-    if (!state.hasData) resetUI();
-    document.getElementById('lastUpdated').textContent = '⚠ No data — check sheet sharing settings';
-    return;
-  }
-
-  const { current, hist } = result;
-  state.hasData = true;
-
-  // Track run/stop cycles
-  if (state.running === true && !current.running) state.cycles++;
-  state.running = current.running;
-
-  // Update real-time cards
-  updateMetricUI(current);
-
-  // Build history arrays from real sheet rows (last N)
-  const slice        = hist.slice(-N);
-  const sheetLabels  = slice.map(r => r[COL.ts] ? String(r[COL.ts]).slice(11,16) : '');
-  const sheetTemp    = slice.map(r => parseFloat(r[COL.temp])  || 0);
-  const sheetHumi    = slice.map(r => parseFloat(r[COL.humi])  || 0);
-  const sheetVib     = slice.map(r => parseFloat(r[COL.vib])   || 0);
-  const sheetStatus  = slice.map(r => parseStatus(r[COL.status]) ? 1 : 0);
-  const statusColors = sheetStatus.map(v => v ? 'rgba(0,200,150,0.75)' : 'rgba(224,80,80,0.75)');
-
-  tempHistChart.data.labels                          = sheetLabels;
-  tempHistChart.data.datasets[0].data               = sheetTemp;
-  humiHistChart.data.labels                          = sheetLabels;
-  humiHistChart.data.datasets[0].data               = sheetHumi;
-  vibHistChart.data.labels                           = sheetLabels;
-  vibHistChart.data.datasets[0].data                = sheetVib;
-  statusHistChart.data.labels                        = sheetLabels;
-  statusHistChart.data.datasets[0].data             = sheetStatus;
-  statusHistChart.data.datasets[0].backgroundColor  = statusColors;
-
-  [tempHistChart, humiHistChart, vibHistChart, statusHistChart].forEach(c => c.update());
-
-  document.getElementById('lastUpdated').textContent = 'Last sync: ' + new Date().toTimeString().slice(0,8);
-}
-
-// ── Start — show -- until first fetch completes ──
-resetUI();
-document.getElementById('lastUpdated').textContent = 'Connecting to sheet…';
-mainLoop();
-setInterval(mainLoop, POLL_MS);
-</script>-->
 </body>
 </html>
