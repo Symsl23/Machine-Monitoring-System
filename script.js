@@ -33,6 +33,8 @@ let tempData = [];
 let humiData = [];
 let vibData = [];
 let labels = [];
+let timestampData = [];
+let abnormalCount = 0;
 
 // ======================
 // CHART OBJECTS
@@ -55,6 +57,8 @@ async function fetchSheetData() {
     humiData = [];
     vibData = [];
     labels = [];
+    timestampData = [];
+    abnormalCount = 0; 
 
     rows.forEach((row, i) => {
       tempData.push(parseFloat(row[1]));
@@ -63,6 +67,13 @@ async function fetchSheetData() {
       //labels.push(i + 1);
       const timeOnly = row[0].split(" ")[1] || row[0];
       labels.push(timeOnly);
+      timestampData.push(row[0]);
+
+      const status = (row[7] || "").trim().toLowerCase();
+
+      if (status === "abnormal") {
+        abnormalCount++;
+      }
     });
 
     // latest row
@@ -256,9 +267,12 @@ function updateUI(d) {
 
   }
 
+document.getElementById("abnormalCount").innerText =
+  "Abnormal Counted: " + abnormalCount;
+
   // Uptime
-  document.getElementById("uptimeTxt").innerText = "Uptime: " + d.uptime;
-  document.getElementById("uptimeTxt2").innerText = "Uptime: " + d.uptime;
+  //document.getElementById("uptimeTxt").innerText = "Uptime: " + d.uptime;
+  //document.getElementById("uptimeTxt2").innerText = "Uptime: " + d.uptime;
 
   // Clock Current Time
   document.getElementById("clock").innerText =
@@ -266,7 +280,7 @@ function updateUI(d) {
 
   // Last Updated from Google Sheet Timestamp column
   document.getElementById("lastUpdated").innerText =
-    "Last updated: " + d.timestamp;
+    "Last updated: " + formatTimestamp(d.timestamp);
 }
 
 function createChart(canvasId, label, color) {
@@ -299,7 +313,8 @@ function createChart(canvasId, label, color) {
         tooltip: {
           callbacks: {
             title: function(context) {
-              return "Time: " + context[0].label;
+              const raw = timestampData[context[0].dataIndex];
+              return "Timestamp: " + formatTimestamp(timestampData[context[0].dataIndex]);
             }
           }
         }
@@ -373,3 +388,15 @@ function updateCharts() {
 initCharts();
 fetchSheetData();
 setInterval(fetchSheetData, 2000);
+
+function formatTimestamp(raw) {
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const [datePart, timePart] = raw.split(" ");
+  const [month, day, year] = datePart.split("/");
+
+  return `${parseInt(day)} ${months[month - 1]} ${year} ${timePart}`;
+}

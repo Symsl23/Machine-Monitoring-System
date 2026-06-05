@@ -67,7 +67,7 @@
 
       <!-- Motor illustration -->
       <div class="motor-card">
-        <div class="motor-label">Material Handling & Conveying System</div>
+        <div class="motor-label">Material Handling & Conveyor Belt System</div>
 
         <svg width="200" height="138" viewBox="0 0 200 138" xmlns="http://www.w3.org/2000/svg">
           <defs>
@@ -127,7 +127,7 @@
           <div class="status-dot"></div>
           <span id="statusText">--</span>
         </div>
-        <div class="motor-id" id="uptimeTxt">Uptime: --:--:--</div>
+        <div class="motor-id" id="uptimeTxt">Sensor : DHT11 & ADXL345</div>
       </div>
 
       <!-- 2×2 Metric cards -->
@@ -169,7 +169,7 @@
           <div class="metric-bar-wrap">
             <div class="metric-bar" id="tempBar" style="width:0%;background:var(--peach)"></div>
           </div>
-          <div class="metric-sub"><span>20°C</span><span id="tempSub">—</span><span>100°C</span></div>
+          <div class="metric-sub"><span>20°C</span><span>100°C</span></div>
         </div>
 
         <!-- Humidity -->
@@ -204,7 +204,7 @@
           <div class="metric-bar-wrap">
             <div class="metric-bar" id="humiBar" style="width:0%;background:var(--blue)"></div>
           </div>
-          <div class="metric-sub"><span>0%</span><span id="humiSub">—</span><span>100%</span></div>
+          <div class="metric-sub"><span>0%</span><span>100%</span></div>
         </div>
 
         <!-- Vibration -->
@@ -239,7 +239,7 @@
           <div class="metric-bar-wrap">
             <div class="metric-bar" id="vibBar" style="width:0%;background:var(--purple)"></div>
           </div>
-          <div class="metric-sub"><span>0</span><span id="vibSub">—</span><span>20</span></div>
+          <div class="metric-sub"><span>0</span><span>20</span></div>
         </div>
 
         <!-- Motor Status -->
@@ -251,10 +251,9 @@
             Motor Condition Status
           </div>
           <div class="status-large running" id="statusLarge">--</div>
-          <div class="uptime-txt" id="uptimeTxt2">Uptime: --:--:--</div>
+          <div class="uptime-txt" id="uptimeTxt2">Shows abnormal condition if temperature & vibration exceeds threshold</div>
           <div class="metric-sub" style="margin-top:4px">
-            <span id="cyclesTxt">Cycles: 0</span>
-            <span id="alertsTxt">Alerts: 0</span>
+            <span id="abnormalCount">Abnormal Counted: --</span>
           </div>
         </div>
 
