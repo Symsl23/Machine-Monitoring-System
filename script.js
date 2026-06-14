@@ -24,7 +24,7 @@ function updateDate() {
 updateDate();
 
 const SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/1EXY9uL0_pyWCFyNQxFrFWjkZ5V9qQGuLOq1vusJTKZA/export?format=csv&gid=0";
+  "https://docs.google.com/spreadsheets/d/1nB500ri0eA4oeSV7iNvprN4gjkpQNFpbtyF5Rrg6LRc/export?format=csv&gid=0";
 
 // ======================
 // DATA STORAGE
@@ -61,15 +61,15 @@ async function fetchSheetData() {
     abnormalCount = 0; 
 
     rows.forEach((row, i) => {
-      tempData.push(parseFloat(row[1]));
-      humiData.push(parseFloat(row[2]));
-      vibData.push(parseFloat(row[6]));
+      tempData.push(parseFloat(row[3]));
+      humiData.push(parseFloat(row[4]));
+      vibData.push(parseFloat(row[8]));
       //labels.push(i + 1);
       const timeOnly = row[0].split(" ")[1] || row[0];
       labels.push(timeOnly);
       timestampData.push(row[0]);
 
-      const status = (row[7] || "").trim().toLowerCase();
+      const status = (row[9] || "").trim().toLowerCase();
 
       if (status === "abnormal") {
         abnormalCount++;
@@ -81,11 +81,11 @@ async function fetchSheetData() {
 
     updateUI({
       timestamp: latest[0],
-      temp: parseFloat(latest[1]),
-      humi: parseFloat(latest[2]),
-      vib: parseFloat(latest[6]),
-      status: latest[7],
-      uptime: latest[8]
+      temp: parseFloat(latest[3]),
+      humi: parseFloat(latest[4]),
+      vib: parseFloat(latest[8]),
+      status: latest[9],
+      error: latest[1]
     });
 
     updateCharts();
@@ -98,6 +98,17 @@ async function fetchSheetData() {
 // UPDATE UI
 // ======================
 function updateUI(d) {
+  // ======================
+  // ERROR CODE DISPLAY
+  // ======================
+  const alarmText = document.getElementById("alarmCode");
+
+  if (!d.error || d.error.trim() === "" || d.error === "--") {
+    alarmText.childNodes[0].nodeValue = "Error Code : --";
+  } else {
+    alarmText.childNodes[0].nodeValue = "Error Code : " + d.error;
+  }
+
   // Temperature
   document.getElementById("tempVal").innerText = d.temp;
   document.getElementById("tempBar").style.width = Math.min(d.temp, 100) + "%";
@@ -106,7 +117,7 @@ function updateUI(d) {
   const tempCard = document.getElementById("cardTemp");
   const tempValue = document.getElementById("tempVal");
 
-  if (d.temp >= 75) {
+  if (d.temp >= 50) {
 
     // RED
     tempCard.className = "metric-card danger";
@@ -114,7 +125,7 @@ function updateUI(d) {
     document.getElementById("tempBar").style.background = "var(--danger)";
 
   }
-  else if (d.temp >= 45) {
+  else if (d.temp >= 40) {
 
     // ORANGE
     tempCard.className = "metric-card warn";
@@ -168,8 +179,8 @@ function updateUI(d) {
   document.getElementById("vibVal").innerText = d.vib;
   //document.getElementById("vibBar").style.width = Math.min(d.vib * 10, 100) + "%";
 
-  // Scale vibration bar to 0-20 mm/s range
-  const vibPercent = (d.vib / 20) * 100;
+  // Scale vibration bar to 0-25 mm/s range
+  const vibPercent = (d.vib / 25) * 100;
 
   document.getElementById("vibBar").style.width = 
     Math.min(vibPercent, 100) + "%";
@@ -178,7 +189,7 @@ function updateUI(d) {
   const vibCard = document.getElementById("cardVib");
   const vibValue = document.getElementById("vibVal");
 
-  if (d.vib >= 15) {
+  if (d.vib >= 20) {
 
     // RED
     vibCard.className = "metric-card danger";
@@ -186,7 +197,7 @@ function updateUI(d) {
     document.getElementById("vibBar").style.background = "var(--danger)";
 
   }
-  else if (d.vib >= 10) {
+  else if (d.vib >= 15) {
 
     // ORANGE
     vibCard.className = "metric-card warn";

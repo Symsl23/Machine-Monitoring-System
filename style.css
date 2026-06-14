@@ -87,7 +87,7 @@
   }
   .section-line { flex: 1; height: 1px; background: var(--border); }
   .section-tag {
-    font-family: 'DM Mono', monospace; font-size: 10px;
+    font-family: 'DM Mono', monospace; font-size: 12px;
     color: var(--text-dim); background: var(--bg-card2);
     padding: 3px 8px; border-radius: 4px;
     border: 1px solid var(--border); white-space: nowrap;
@@ -172,6 +172,20 @@
     background: var(--bg-card);
 
     transition: all 0.2s ease;
+  }
+
+  .metric-info.alarm-info .info-tooltip{
+    top: auto;
+    left: 50%;
+    bottom: calc(100% + 8px);
+
+    transform: translateX(-50%) translateY(6px);
+  }
+
+  .metric-info.alarm-info:hover .info-tooltip{
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-75%) translateY(0);
   }
 
   .metric-info:hover{

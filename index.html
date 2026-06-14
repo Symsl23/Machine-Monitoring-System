@@ -128,6 +128,28 @@
           <span id="statusText">--</span>
         </div>
         <div class="motor-id" id="uptimeTxt">Sensor : DHT11 & ADXL345</div>
+        <div id="alarmCode">
+          Error Code : --
+
+          <div class="metric-info alarm-info">
+            𝒊
+
+            <div class="info-tooltip">
+              <div class="tooltip-title">Error Codes Information</div>
+
+              NONE - Normal Operation<br>
+              E0001 - High Temp (>40°C)<br>
+              E0002 - Crit Temp (>50°C)<br>
+              E0003 - High Vib (>15 m/s²)<br>
+              E0004 - Crit Vib (>20 m/s²)<br>
+              E0006 - DHT11 Failure<br>
+              E0007 - ADXL345 Failure<br>
+              E0008 - Machine Overload (Temp >40°C & Vib >15 m/s²)<br>
+              E0009 - Google Sheets Logging Failure<br>
+              E0010 - Vib Spike (>25 m/s²)<br>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- 2×2 Metric cards -->
@@ -152,13 +174,13 @@
                 <div class="tooltip-title">Temperature Threshold</div>
 
                 <span class="dot green"></span>
-                Normal: &lt; 45°C<br>
+                Normal: &lt; 40°C<br>
 
                 <span class="dot orange"></span>
-                Warning: 45–74°C<br>
+                Warning: 40–49°C<br>
 
                 <span class="dot red"></span>
-                Critical: ≥ 75°C
+                Critical: ≥ 50°C
               </div>
             </div>
           </div>
@@ -222,13 +244,13 @@
               <div class="tooltip-title">Vibration Threshold</div>
 
                 <span class="dot green"></span>
-                Normal: &lt; 10 mm/s<br>
+                Normal: &lt; 15 mm/s<br>
 
                 <span class="dot orange"></span>
-                Warning: 10–14.9 mm/s<br>
+                Warning: 15–19.9 mm/s<br>
 
                 <span class="dot red"></span>
-                Critical: ≥ 15 mm/s
+                Critical: ≥ 20 mm/s
               </div>
             </div>
           </div>
@@ -239,7 +261,7 @@
           <div class="metric-bar-wrap">
             <div class="metric-bar" id="vibBar" style="width:0%;background:var(--purple)"></div>
           </div>
-          <div class="metric-sub"><span>0</span><span>20</span></div>
+          <div class="metric-sub"><span>0</span><span>25</span></div>
         </div>
 
         <!-- Motor Status -->
